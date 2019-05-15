@@ -1,5 +1,5 @@
 {
-    "name": "nwogu/laravel-searchman",
+    "name": "nwogu/searchman",
     "description": "MySql Driver for Laravel Scout",
     "authors": [
         {
