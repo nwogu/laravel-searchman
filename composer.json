@@ -1,0 +1,26 @@
+{
+    "name": "nwogu/laravel-searchman",
+    "description": "MySql Driver for Laravel Scout",
+    "authors": [
+        {
+            "name": "Gabriel Nwogu",
+            "email": "nwogugabriel@gmail.com"
+        }
+    ],
+    "keywords": ["laravel", "scout", "mysql", "indexing", "priorities"],
+    "require": {
+        "laravel/scout": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nwogu\\SearchMan\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nwogu\\SearchMan\\Providers\\SearchableServiceProvider"
+            ]
+        }
+    }
+}
