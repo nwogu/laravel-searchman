@@ -57,7 +57,7 @@ class MakeIndex extends Command
      */
     public function handle()
     {
-        $searchable = new $this->argument('model');
+        $searchable = new $this->argument('searchable');
 
         $tableName = $searchable->searchableAs();
         

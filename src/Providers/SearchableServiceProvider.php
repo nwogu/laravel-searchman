@@ -23,7 +23,7 @@ class SearchableServiceProvider extends ServiceProvider
         }
 
         $this->publishes([
-            __DIR__ .'/../config/searchman.php' => config_path('searchman.php')
+            __DIR__ .'/config/searchman.php' => config_path('searchman.php')
         ], 'config');
 
         resolve(EngineManager::class)->extend('mysql', function () {
