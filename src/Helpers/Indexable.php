@@ -2,6 +2,9 @@
 
 namespace Nwogu\SearchMan\Helpers;
 
+use Nwogu\SearchMan\Contracts\IndexBreaker;
+use Nwogu\SearchMan\Contracts\PriorityHandler;
+
 class Indexable
 {
     /**
@@ -35,7 +38,7 @@ class Indexable
     {
         $this->column = $column;
 
-        $this->values = $this->collectValues($values);
+        $this->collectValues($values);
 
         $this->validateHandler(new $handler);
     }
@@ -64,7 +67,7 @@ class Indexable
      */
     private function validateHandler($handler)
     {
-        if ($handler instanceOf PriorityHandlerInterface) {
+        if ($handler instanceOf PriorityHandler) {
             $this->handler = $handler;
 
             return true;
@@ -83,11 +86,11 @@ class Indexable
             foreach ($filterableFunctions as $func) {
                 $validities[] = $func($value);
             }
-            return !in_array(true, $validities);
+            return in_array(true, $validities);
         };
 
         $is_date_time = function ($myString) {
-            return \DateTime::createFromFormat('Y-m-d H:i:s', $myString) === FALSE;
+            return ! \DateTime::createFromFormat('Y-m-d H:i:s', $myString) === FALSE;
         };
 
         $is_short_string = function ($myString) {
@@ -95,7 +98,7 @@ class Indexable
         };
 
         if (! is_array($values)) {
-            if ($filter($values, ["is_null", $is_date_time, "is_numeric", $is_short_string])) {
+            if (! $filter($values, ["is_null", $is_date_time, "is_numeric", $is_short_string])) {
                 $this->values[] = $values;
             }
             return $this;

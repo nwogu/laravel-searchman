@@ -35,7 +35,7 @@ class Searcher
      * Searchable
      * @var Model
      */
-    protected $searchable;
+    protected $model;
 
     public function __construct(Builder $builder)
     {
@@ -43,12 +43,14 @@ class Searcher
 
         $this->queries = array_filter(explode(" ", $this->builder->query));
 
-        $this->searchable = $this->builder->model;
+        $this->model = $this->builder->model;
 
         $this->filters = $this->builder->wheres;
 
+        $index = $this->builder->index ?: $this->model->searchableAs();
+
         $this->connection = DB::connection(config('searchman.connection'))
-            ->table($this->model->searchableAs());
+            ->table($index);
     }
 
     public function search($offset = null)
@@ -68,7 +70,11 @@ class Searcher
             $searchTable, "{$this->model->searchableAs()}.document_id", 
             "=", "{$this->model->getScoutKeyName()}");
 
-        $this->connection->selectRaw("sum(priority) as priority")
+        $query = implode("," , $this->model->getColumns());
+
+        $query .= ", sum(priority) as priority, document_id";
+
+        $this->connection->selectRaw($query)
             ->groupBy("document_id");
 
         $this->connection->where( function ($query) {
@@ -79,7 +85,18 @@ class Searcher
 
         $this->connection->where( function ($query) {
             foreach ($this->filters as $where => $value) {
-                $query->where($where, $value);
+
+                $column = $where;
+                $action = "=";
+
+                if (strpos($where, ":")) {
+                    $where = explode(":", $where);
+                    $column = $where[0];
+                    $action = $where[1];
+                }
+                $column = $this->model->qualifyColumn($column);
+
+                $query->where($column, $action, $value);
             }
         });
 
@@ -92,12 +109,15 @@ class Searcher
         }
 
         foreach ($this->builder->orders as $order) {
-            $this->connection->orderBy($order['column'], $order['direction']);
+            $column = $this->model->qualifyColumn($order['column']);
+            $this->connection->orderBy($column, $order['direction']);
         }
-        
+
+        $this->connection->orderBy("priority", "desc");
+
         return [
             "hits" => $this->connection->get(),
-            "total" => $this->connection->count(),
+            "total" => $this->connection->get()->count(),
         ];
         
     }

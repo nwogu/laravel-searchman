@@ -28,4 +28,18 @@ trait SearchMan
         return config('scout.prefix') . $this->getTable() . config('searchman.suffix');
     }
 
+    /**
+     * Get Table Columns
+     */
+    public function getColumns()
+    {
+        return array_map(function ($column) {
+            return $this->qualifyColumn($column);
+        } , 
+        $this->getConnection()
+            ->getSchemaBuilder()
+            ->getColumnListing($this->getTable())
+        );
+    }
+
 }

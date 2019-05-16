@@ -2,9 +2,10 @@
 
 namespace Nwogu\SearchMan\Providers;
 
+use Laravel\Scout\Builder;
 use Laravel\Scout\EngineManager;
-use Illuminate\Support\ServiceProvider;
 use Nwogu\SearchMan\Console\MakeIndex;
+use Illuminate\Support\ServiceProvider;
 use Nwogu\SearchMan\Engines\MySqlEngine;
 
 class SearchableServiceProvider extends ServiceProvider
@@ -22,9 +23,15 @@ class SearchableServiceProvider extends ServiceProvider
             ]);
         }
 
+        Builder::macro('count', function () {
+            return $this->engine()->getTotalCount(
+                $this->engine()->search($this)
+            );
+        });
+
         $this->publishes([
-            __DIR__ .'/config/searchman.php' => config_path('searchman.php')
-        ], 'config');
+            base_path() . '/vendor/nwogu/laravel-searchman/config/searchman.php' => config_path('searchman.php')
+        ], 'searchman-config');
 
         resolve(EngineManager::class)->extend('mysql', function () {
             return new MySqlEngine;

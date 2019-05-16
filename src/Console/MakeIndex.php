@@ -2,7 +2,7 @@
 
 namespace Nwogu\SearchMan\Console;
 
-
+use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Illuminate\Support\Composer;
 use Illuminate\Filesystem\Filesystem;
@@ -15,6 +15,13 @@ class MakeIndex extends Command
      * @var string
      */
     protected $name = 'searchman:make-index {searchable}';
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'searchman:make-index {searchable}';
 
     /**
      * The console command description.
@@ -57,22 +64,29 @@ class MakeIndex extends Command
      */
     public function handle()
     {
-        $searchable = new $this->argument('searchable');
+        $searchable = $this->argument('searchable');
 
-        $tableName = $searchable->searchableAs();
+        $searchable = new $searchable;;
+
+        $indexTable = $searchable->searchableAs();
+
+        $table = "create_{$indexTable}_table";
         
-        $fullPath = $this->createBaseMigration($tableName);
+        $fullPath = $this->createBaseMigration($table);
 
         $replaceables = [
-            "{ClassName}" => $this->getSearchableModelIndexClass(),
-            "{table_name}" => $tableName
+            "{CreateClassNameTable}" => $this->getSearchableModelIndexClass($table),
+            "{table_name}" => $indexTable
         ];
+
+        $basePath = __DIR__.'/stubs/searchable_index_migration.stub';
 
         foreach ($replaceables as $search => $replace) {
             $this->files->put($fullPath, 
                 str_replace($search, $replace, 
-                $this->files->get(__DIR__.'/stubs/searchable_index_migration.stub')
+                $this->files->get($basePath)
             ));
+            $basePath = $fullPath;
         }
 
 
@@ -88,19 +102,17 @@ class MakeIndex extends Command
      */
     protected function createBaseMigration($table)
     {
-        $name = "create_{$table}_table";
-
         $path = $this->laravel->databasePath().'/migrations';
 
-        return $this->laravel['migration.creator']->create($name, $path);
+        return $this->laravel['migration.creator']->create($table, $path);
     }
 
     /**
      * Gets Searchable Model Index Class
      */
-    protected function getSearchableModelIndexClass()
+    protected function getSearchableModelIndexClass($table)
     {
-        $searchable = explode("\\", $this->argument('searchable'));
-        return $searchable[count($searchable)-1] . "Index";
+        return Str::studly(implode('_', array_slice(explode('_', $table), 0)));
     }
+
 }

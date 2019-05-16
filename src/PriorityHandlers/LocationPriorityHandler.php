@@ -7,12 +7,12 @@ use Nwogu\SearchMan\Breakers\CurlyBreaker;
 use Nwogu\SearchMan\Contracts\PriorityHandler;
 use Nwogu\SearchMan\Breakers\SpecialCharacterBreaker;
 
-class LocationPriorityHandler extends PriorityHandler
+class LocationPriorityHandler implements PriorityHandler
 {
     public function calculate(string $index, $columnValue)
     {
         $values = array_flatten(array_filter(explode(" ", $columnValue)));
-        return array_search($index, $values) / sizeOf($values);
+        return (array_search($index, $values) + 1) / sizeOf($values);
     }
 
     public function getBreakers(): array
