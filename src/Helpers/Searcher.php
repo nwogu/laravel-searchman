@@ -32,6 +32,12 @@ class Searcher
     protected $connection;
 
     /**
+     * Searchable Index
+     * @var string
+     */
+    protected $index;
+
+    /**
      * Searchable
      * @var Model
      */
@@ -47,10 +53,10 @@ class Searcher
 
         $this->filters = $this->builder->wheres;
 
-        $index = $this->builder->index ?: $this->model->searchableAs();
+        $this->index = $this->builder->index ?: $this->model->searchableAs();
 
         $this->connection = DB::connection(config('searchman.connection'))
-            ->table($index);
+            ->table($this->index);
     }
 
     public function search($offset = null)
@@ -67,7 +73,7 @@ class Searcher
         $searchTable = substr($this->model->getScoutKeyName(), 0, strpos($this->model->getScoutKeyName(), "."));
 
         $this->connection->leftJoin(
-            $searchTable, "{$this->model->searchableAs()}.document_id", 
+            $searchTable, "{$this->index}.document_id", 
             "=", "{$this->model->getScoutKeyName()}");
 
         $query = implode("," , $this->model->getColumns());
