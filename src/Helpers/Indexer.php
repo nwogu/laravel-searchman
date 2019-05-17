@@ -30,7 +30,6 @@ class Indexer
      */
     public function index(Indexable $indexable)
     {
-        $this->delete();
         foreach ($indexable->getIndices() as $index) {
             $this->connection->insert([
                 'keyword' => $index['index'],
