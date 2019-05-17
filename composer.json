@@ -23,5 +23,7 @@
                 "Nwogu\\SearchMan\\Providers\\SearchableServiceProvider"
             ]
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
