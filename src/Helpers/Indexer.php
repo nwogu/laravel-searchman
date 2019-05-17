@@ -49,13 +49,10 @@ class Indexer
     {
         $removePreviousIndexBuilder = $this->connection->where('document_id', $this->model->getScoutKey());
         if ($removePreviousIndexBuilder->exists()) {
-            $removePreviousIndexBuilder->chunk(config('scout.chunk.searchable'), function ($indices) {
-                foreach ($indices as $index) {
-                    $index->delete();
-                }
-            });
+            $removePreviousIndexBuilder->delete();
         }
-        return true;
+
+        return $this;
     }
 
     /**

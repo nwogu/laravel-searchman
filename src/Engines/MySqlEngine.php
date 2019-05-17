@@ -16,6 +16,8 @@ class MySqlEngine extends Engine
     {
         $searchableColumns = $model->refresh()->toSearchableArray();
 
+        $indexer = (new Indexer($model))->delete();
+
         foreach ($searchableColumns as $column => $value) {
             
             $priorityHandler = !in_array($column, array_keys($model->getIndexablePriorities())) 
@@ -24,7 +26,7 @@ class MySqlEngine extends Engine
 
             $indexable = new Indexable($column, $value, $priorityHandler);
 
-            (new Indexer($model))->index($indexable);
+            $indexer->index($indexable);
         }
         return $model;
     }
