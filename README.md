@@ -94,8 +94,7 @@ App\Meeting::search("discussion on health")->where("attendance:>", 10)->get();
 For more on search, look up the [Laravel Scout Documentation](https://laravel.com/docs/5.8/scout)  
 
 ## Results
-Calling get on your query would return an Eloquent collection of models. However using raw would  
-return an eloquent collection ordered by priorities.  
+Calling get on your query would return an Eloquent collection of models sorted by the priority attribute.  
 
 ```  
     {#3017
@@ -113,6 +112,7 @@ return an eloquent collection ordered by priorities.
         +"meeting_date": "2019-03-21 20:19:00",
         +"priority": 3.0,
         +"document_id": 9,
+        +"priotity": 7.5
     }
 ```
 
