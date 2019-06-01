@@ -105,11 +105,18 @@ class MySqlEngine extends Engine
 
         $objectIds = $results['hits']->pluck('document_id')->values()->all();
 
+        $priorities = $results['hits']->pluck('priority', 'document_id')->toArray();
+
         return $model->getScoutModelsByIds(
                 $builder, $objectIds
-            )->filter(function ($model) use ($objectIds) {
+            )
+            ->filter(function ($model) use ($objectIds) {
                 return in_array($model->getScoutKey(), $objectIds);
-            })->values();
+            })
+            ->map(function ($model) use ($priorities) {
+                return $model->setAttribute('priority', $priorities[$model->id] ?? 0);
+            })
+            ->sortByDesc('priority')->values();
     }
 
     /**
